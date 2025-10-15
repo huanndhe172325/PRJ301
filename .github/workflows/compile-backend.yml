@@ -1,0 +1,29 @@
+name: Compile Java Backend
+
+on: [push, pull_request]
+
+jobs:
+  compile-backend:
+    runs-on: ubuntu-latest
+    name: Compile Backend Code
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Configure Maven encoding
+        run: |
+          echo MAVEN_OPTS=-Dfile.encoding=UTF-8 >> $GITHUB_ENV
+
+      - name: Compile with Maven
+        run: |
+          cd app
+          mvn -B clean compile -Dproject.build.sourceEncoding=UTF-8 -Dproject.reporting.outputEncoding=UTF-8
