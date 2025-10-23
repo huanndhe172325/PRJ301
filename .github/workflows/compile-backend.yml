@@ -1,8 +1,8 @@
 # -----------------------------------------------------
 # Workflow: Compile Java Backend
-# Purpose (EN): Set up JDK 17 and compile the backend source code using Maven Wrapper (./mvnw)
-# Mục đích (VI): Thiết lập môi trường JDK 17 và biên dịch mã nguồn backend bằng Maven Wrapper (./mvnw)
-# Trigger: Runs on push or pull request events
+# EN: Sets up JDK 17 and compiles the backend using Maven Wrapper (./mvnw)
+# VI: Thiết lập JDK 17 và biên dịch mã nguồn backend bằng Maven Wrapper (./mvnw)
+# Trigger: Runs on push or pull request
 # -----------------------------------------------------
 
 name: Compile Java Backend
@@ -15,33 +15,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout source code
-      # Bước 1: Lấy mã nguồn từ repository
-      - name: Checkout repository
+      # Step 1: Checkout repository
+      - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Get full history for accurate build metadata
+          fetch-depth: 0  # Full history for accurate build metadata
 
-      # Step 2: Set up JDK 17 and enable Maven dependency caching
-      # Bước 2: Cài đặt JDK 17 và kích hoạt cache Maven để tăng tốc độ build
-      - name: Set up JDK 17
+      # Step 2: Set up JDK 17 with Maven cache
+      - name: Set up Java environment
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: 17
+          cache: maven
 
-      # Step 3: Configure encoding to prevent character issues during build
-      # Bước 3: Thiết lập encoding để tránh lỗi ký tự khi build
-      - name: Configure Maven encoding
+      # Step 3: Configure UTF-8 encoding
+      - name: Configure Maven environment
         run: echo "MAVEN_OPTS=-Dfile.encoding=UTF-8" >> $GITHUB_ENV
 
-      # Step 4: Compile project using Maven Wrapper for portability
-      # Bước 4: Biên dịch project bằng Maven Wrapper để đảm bảo khả năng tương thích
-      - name: Compile Backend with Maven Wrapper
+      # Step 4: Compile backend using Maven Wrapper
+      - name: Compile backend
+        working-directory: app
         run: |
-          cd app
           chmod +x mvnw
           ./mvnw -B clean compile \
             -Dproject.build.sourceEncoding=UTF-8 \
             -Dproject.reporting.outputEncoding=UTF-8
+
+      # Step 5: Notify on failure (optional but useful)
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ Build failed. Please check the compile logs for details."
