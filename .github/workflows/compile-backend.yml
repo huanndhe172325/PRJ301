@@ -1,29 +1,42 @@
+# ----------------------------------------------
+# Workflow: Compile Java Backend
+# Mục đích: Thiết lập môi trường JDK 17 và biên dịch mã nguồn backend bằng Maven Wrapper (./mvnw)
+# Trigger: Khi có push hoặc pull request
+# ----------------------------------------------
+
 name: Compile Java Backend
 
 on: [push, pull_request]
 
 jobs:
   compile-backend:
-    runs-on: ubuntu-latest
     name: Compile Backend Code
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      # Bước 1: Checkout mã nguồn
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK
+      # Bước 2: Cài đặt JDK 17 và thiết lập cache Maven
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
 
+      # Bước 3: Thiết lập encoding để đảm bảo Maven build không lỗi ký tự
       - name: Configure Maven encoding
-        run: |
-          echo MAVEN_OPTS=-Dfile.encoding=UTF-8 >> $GITHUB_ENV
+        run: echo "MAVEN_OPTS=-Dfile.encoding=UTF-8" >> $GITHUB_ENV
 
-      - name: Compile with Maven
+      # Bước 4: Biên dịch project bằng Maven Wrapper để đảm bảo tính tương thích
+      - name: Compile Backend with Maven Wrapper
         run: |
           cd app
-          mvn -B clean compile -Dproject.build.sourceEncoding=UTF-8 -Dproject.reporting.outputEncoding=UTF-8
+          chmod +x mvnw
+          ./mvnw -B clean compile \
+            -Dproject.build.sourceEncoding=UTF-8 \
+            -Dproject.reporting.outputEncoding=UTF-8
