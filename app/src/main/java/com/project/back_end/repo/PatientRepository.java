@@ -7,11 +7,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    // 1. Find a patient by email
+    /**
+     * Retrieves a patient by their email address.
+     *
+     * @param email the patient's email address
+     * @return the matching Patient, or null if no patient is found
+     */
     Patient findByEmail(String email);
 
-    // 2. Find a patient by email OR phone
+    /**
+     * Retrieves a patient by either their email address or phone number.
+     *
+     * @param email the patient's email address
+     * @param phone the patient's phone number
+     * @return the matching Patient, or null if no patient is found
+     */
     Patient findByEmailOrPhone(String email, String phone);
 }
-
-
